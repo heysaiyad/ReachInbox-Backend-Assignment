@@ -1,19 +1,21 @@
 require("dotenv").config();
 const express = require("express");
-const syncEmails = require("./syncEmails");
+const mongoose = require("mongoose");
+const  syncEmails  = require("./services/syncEmails");
 
 const app = express();
 const PORT = 5000;
 
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log("MongoDB connected"))
+    .catch((err) => console.error("MongoDB connection error:", err));
+
 app.get("/", (req, res) => {
-    res.send("Gmail IMAP Sync Service is Running!");
+    res.send("Email Onebox Backend Running!");
 });
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
-    try {
-        syncEmails();
-    } catch (error) {
-        console.error("Error starting email sync:", error);
-    }
+    syncEmails(); // Start syncing emails
 });

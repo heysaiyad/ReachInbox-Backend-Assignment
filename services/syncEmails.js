@@ -2,7 +2,7 @@ const Imap = require("imap-simple");
 const { simpleParser } = require("mailparser");
 const { convert } = require("html-to-text");
 const { Readable } = require("stream");
-
+const Email = require("../models/Email");
 async function syncEmails() {
     const config = {
         imap: {
@@ -42,7 +42,7 @@ async function syncEmails() {
                 const sender = headers.from ? headers.from[0] : "No Sender";
 
                 // Parse body
-                simpleParser(stream, (err, parsed) => {
+                simpleParser(stream, async (err, parsed) => {
                     if (err) {
                         console.error("Error parsing email:", err);
                         return;
@@ -66,6 +66,21 @@ async function syncEmails() {
                     console.log("Subject:", subject);
                     console.log("From:", sender);
                     console.log("Body:", cleanedBody);
+
+                    // Save email to MongoDB
+                    try {
+                        const newEmail = new Email({
+                            subject: subject,
+                            sender: sender,
+                            body: cleanedBody,
+                            date: parsed.date || new Date(),
+                        });
+
+                        await newEmail.save();
+                        console.log("Email saved to MongoDB:", newEmail);
+                    } catch (error) {
+                        console.error("Error saving email to MongoDB:", error);
+                    }
                 });
             });
         });
