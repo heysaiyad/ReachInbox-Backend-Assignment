@@ -1,5 +1,7 @@
 const Imap = require("imap-simple");
 const { simpleParser } = require("mailparser");
+const { convert } = require("html-to-text");
+const { Readable } = require("stream");
 
 async function syncEmails() {
     const config = {
@@ -9,7 +11,7 @@ async function syncEmails() {
             host: process.env.IMAP_HOST,
             port: parseInt(process.env.IMAP_PORT),
             tls: true,
-            tlsOptions: { rejectUnauthorized: false }, // Ignore SSL certificate errors
+            tlsOptions: { rejectUnauthorized: false },
         },
     };
 
@@ -22,21 +24,48 @@ async function syncEmails() {
 
         connection.on("mail", async () => {
             console.log("New mail received!");
-            const results = await connection.search(["ALL"], {
-                bodies: ["TEXT"],
-                markSeen: false,
+
+            const results = await connection.search(["UNSEEN"], {
+                bodies: ["HEADER", "TEXT", ""], // Fetch headers and body
+                markSeen: true, // Mark emails as read
             });
 
-            results.forEach((email) => {
-                simpleParser(email.parts[0].body, (err, parsed) => {
+            results.forEach(async (email) => {
+                const headerPart = email.parts.find((part) => part.which === "HEADER");
+                const textPart = email.parts.find((part) => part.which === "TEXT");
+                const rawBody = textPart?.body || "";
+                const stream = Readable.from(rawBody);
+
+                // Parse headers to get subject and sender
+                const headers = headerPart?.body || {};
+                const subject = headers.subject ? headers.subject[0] : "No Subject";
+                const sender = headers.from ? headers.from[0] : "No Sender";
+
+                // Parse body
+                simpleParser(stream, (err, parsed) => {
                     if (err) {
                         console.error("Error parsing email:", err);
                         return;
                     }
+
+                    const sanitizedBody = convert(parsed.html || parsed.text || "No Body Content", {
+                        wordwrap: 130,
+                        selectors: [
+                            { selector: "img", format: "skip" },
+                            { selector: "style", format: "skip" },
+                        ],
+                    });
+
+                    // Remove unwanted markers and extra metadata
+                    const cleanedBody = sanitizedBody
+                        .replace(/--.*Content-Type:.*charset=".*"\s*/gi, "") // Remove boundary markers
+                        .replace(/--\S+--/g, "") // Remove ending markers
+                        .trim();
+
                     console.log("New Email:");
-                    console.log("Subject:", parsed.subject);
-                    console.log("From:", parsed.from.text);
-                    console.log("Body:", parsed.text);
+                    console.log("Subject:", subject);
+                    console.log("From:", sender);
+                    console.log("Body:", cleanedBody);
                 });
             });
         });

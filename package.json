@@ -16,6 +16,7 @@
     "express": "^4.21.2",
     "fs": "^0.0.1-security",
     "googleapis": "^146.0.0",
+    "html-to-text": "^9.0.5",
     "imap-simple": "^5.1.0",
     "mailparser": "^3.7.2",
     "nodemailer": "^6.10.0"
