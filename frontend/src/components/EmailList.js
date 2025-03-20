@@ -36,8 +36,10 @@ const EmailList = ({ emails, setEmails }) => {
                                 <strong>{email.subject}</strong>
                                 <br />
                                 <span>{email.sender}</span>
+                                <br />
+                                <span><strong>Label:</strong> {email.label || "No Label"}</span> 
                             </div>
-                            <button onClick={() => handleDelete(email._id)}>Delete</button> {/* Delete button */}
+                            <button onClick={() => handleDelete(email._id)}>Delete</button>
                         </li>
                     ))}
                 </ul>
