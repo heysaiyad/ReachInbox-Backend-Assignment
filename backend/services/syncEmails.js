@@ -5,7 +5,7 @@ const { Readable } = require("stream");
 const Email = require("../models/Email");
 const { indexEmail } = require("../services/elasticService");
 
-// Categories for email labeling
+
 const categories = [
     { label: "Interested", keywords: ["interested", "yes", "keen"] },
     { label: "Meeting Booked", keywords: ["meeting", "appointment", "calendar"] },
@@ -14,7 +14,7 @@ const categories = [
     { label: "Out of Office", keywords: ["out of office", "leave", "not available"] },
 ];
 
-// Function to categorize emails
+
 const categorizeEmail = (emailBody) => {
     for (const category of categories) {
         for (const keyword of category.keywords) {
@@ -23,7 +23,7 @@ const categorizeEmail = (emailBody) => {
             }
         }
     }
-    return "Uncategorized"; // Default label if no match
+    return "Uncategorized"; 
 };
 
 async function syncEmails() {
@@ -59,7 +59,7 @@ async function syncEmails() {
                 const rawBody = textPart?.body || "";
                 const stream = Readable.from(rawBody);
 
-                // Parse headers to get subject and sender
+                
                 const headers = headerPart?.body || {};
                 const subject = headers.subject ? headers.subject[0] : "No Subject";
                 const sender = headers.from ? headers.from[0] : "No Sender";
@@ -84,10 +84,10 @@ async function syncEmails() {
                         .replace(/--\S+--/g, "")
                         .trim();
 
-                    // Categorize the email
+                   
                     const label = categorizeEmail(cleanedBody);
 
-                    // Save email to MongoDB
+                  
                     try {
                         const newEmail = new Email({
                             subject: subject,
@@ -96,13 +96,13 @@ async function syncEmails() {
                             date: parsed.date || new Date(),
                             folder: "INBOX",
                             account: "Account 1",
-                            label: label, // Categorized label
+                            label: label, 
                         });
 
                         await newEmail.save();
                         console.log("Email saved to MongoDB:", newEmail);
 
-                        // Index email in Elasticsearch
+                       
                         await indexEmail(newEmail);
                     } catch (error) {
                         console.error("Error saving email to MongoDB:", error);

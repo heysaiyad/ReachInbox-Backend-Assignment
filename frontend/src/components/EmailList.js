@@ -49,7 +49,6 @@ const EmailList = ({ emails, setEmails }) => {
                 </ul>
             )}
 
-            {/* Render EmailDetails modal if an email is selected */}
             {selectedEmail && <EmailDetails email={selectedEmail} onClose={closeDetails} />}
         </div>
     );

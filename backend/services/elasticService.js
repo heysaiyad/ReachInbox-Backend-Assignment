@@ -2,12 +2,12 @@ const { Client } = require("@elastic/elasticsearch");
 
 const elasticClient = new Client({ node: "http://localhost:9200" });
 
-// Function to index an email
+
 const indexEmail = async (email) => {
     try {
         const response = await elasticClient.index({
             index: "emails",
-            id: email._id.toString(), // Use MongoDB ID as the Elasticsearch document ID
+            id: email._id.toString(), 
             document: {
                 subject: email.subject,
                 sender: email.sender,
@@ -45,13 +45,12 @@ const searchEmails = async (query, folder, account) => {
 
         console.log("Constructed Elasticsearch Query:", JSON.stringify(esQuery, null, 2));
 
-        // Perform the search
+       
         const response = await elasticClient.search(esQuery);
 
-        // Log the full response for debugging
         console.log("Full Elasticsearch Response:", response);
 
-        // Access hits directly (for Elasticsearch client 8.x and above)
+        
         const hits = response.hits?.hits;
 
         if (!hits || !Array.isArray(hits)) {
@@ -59,7 +58,7 @@ const searchEmails = async (query, folder, account) => {
             throw new Error("Invalid Elasticsearch response structure");
         }
 
-        // Extract and return the _source property from hits
+ 
         const results = hits.map((hit) => hit._source);
 
         console.log("Search Results:", results);

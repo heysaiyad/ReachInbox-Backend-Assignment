@@ -8,14 +8,14 @@ const emailRoutes = require("./routes/emailRoutes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+
 app.use(express.json());
 app.use(cors()); 
 
-// Check environment variables
+
 if (!process.env.MONGO_URI) {
     console.error("MONGO_URI is not defined in the environment variables.");
-    process.exit(1); // Exit the application
+    process.exit(1); 
 }
 
 // Connect to MongoDB
@@ -27,23 +27,23 @@ mongoose
     .then(() => {
         console.log("MongoDB connected");
 
-        // Start syncing emails only after database connection
+        
         syncEmails();
     })
     .catch((err) => {
         console.error("MongoDB connection error:", err);
-        process.exit(1); // Exit the application if MongoDB connection fails
+        process.exit(1); 
     });
 
-// Default route
+
 app.get("/", (req, res) => {
     res.send("Email Onebox Backend Running!");
 });
 
-// API routes
-app.use("/api/emails", emailRoutes); // Use email-related routes
 
-// Start server
+app.use("/api/emails", emailRoutes); 
+
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

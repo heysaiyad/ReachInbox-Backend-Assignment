@@ -39,7 +39,7 @@ const App = () => {
             </header>
 
             <div className="filters-container">
-                {/* Search Bar */}
+              
                 <input
                     type="text"
                     placeholder="Search emails..."
@@ -48,7 +48,7 @@ const App = () => {
                     className="search-bar"
                 />
 
-                {/* Label Filter Dropdown */}
+               
                 <select
                     onChange={(e) => setLabel(e.target.value)}
                     value={label}
@@ -63,14 +63,14 @@ const App = () => {
                 </select>
             </div>
 
-            {/* Email List */}
+          
             {loading ? (
                 <p>Loading emails...</p>
             ) : (
                 <EmailList emails={emails} setEmails={setEmails} />
             )}
 
-            {/* Pagination Controls */}
+
             <div className="pagination-container">
                 <button
                     onClick={() => setPage((prev) => Math.max(prev - 1, 1))}

@@ -1,5 +1,5 @@
 import React from "react";
-import "./EmailDetails.css"; // Import CSS styles for the component
+import "./EmailDetails.css"; 
 
 const EmailDetails = ({ email, onClose }) => {
     if (!email) return null;
