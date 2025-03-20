@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import EmailDetails from "./EmailDetails";
-import api from "../services/api"; // Import API service
-import "./EmailList.css"; // Import CSS styles for the component
+import api from "../services/api"; 
+import "./EmailList.css"; 
 
 const EmailList = ({ emails, setEmails }) => {
     const [selectedEmail, setSelectedEmail] = useState(null);
@@ -11,13 +11,13 @@ const EmailList = ({ emails, setEmails }) => {
     };
 
     const closeDetails = () => {
-        setSelectedEmail(null);
+        setSelectedEmail(null); 
     };
 
     const handleDelete = async (id) => {
         try {
-            await api.delete(`/emails/${id}`); // Call DELETE API
-            setEmails(emails.filter((email) => email._id !== id)); // Update state to remove deleted email
+            await api.delete(`/emails/${id}`); 
+            setEmails(emails.filter((email) => email._id !== id)); 
         } catch (error) {
             console.error("Error deleting email:", error);
         }
@@ -27,17 +27,21 @@ const EmailList = ({ emails, setEmails }) => {
         <div className="email-list">
             <h1>Email List</h1>
             {emails.length === 0 ? (
-                <p>No emails found.</p>
+                <p className="no-emails">No emails found.</p>
             ) : (
                 <ul>
                     {emails.map((email) => (
-                        <li key={email._id}>
-                            <div onClick={() => handleEmailClick(email)}>
+                        <li key={email._id} className="email-item">
+                            <div
+                                className="email-content"
+                                onClick={() => handleEmailClick(email)} 
+                                style={{ cursor: "pointer" }} 
+                            >
                                 <strong>{email.subject}</strong>
                                 <br />
                                 <span>{email.sender}</span>
                                 <br />
-                                <span><strong>Label:</strong> {email.label || "No Label"}</span> 
+                                <span className="email-label">{email.label || "No Label"}</span>
                             </div>
                             <button onClick={() => handleDelete(email._id)}>Delete</button>
                         </li>
@@ -45,6 +49,7 @@ const EmailList = ({ emails, setEmails }) => {
                 </ul>
             )}
 
+            {/* Render EmailDetails modal if an email is selected */}
             {selectedEmail && <EmailDetails email={selectedEmail} onClose={closeDetails} />}
         </div>
     );
