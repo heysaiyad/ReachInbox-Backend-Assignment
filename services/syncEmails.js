@@ -5,6 +5,14 @@ const { Readable } = require("stream");
 const Email = require("../models/Email");
 const { indexEmail } = require("../services/elasticService");
 
+// Function to determine the label
+const determineLabel = (subject, sender, body) => {
+    if (subject.toLowerCase().includes("testing")) return "Test Emails";
+    if (sender.toLowerCase().includes("mdsaiyad")) return "Personal";
+    // Add more rules as needed
+    return "Uncategorized";
+};
+
 async function syncEmails() {
     const config = {
         imap: {
@@ -58,16 +66,13 @@ async function syncEmails() {
                         ],
                     });
 
-                    // Remove unwanted markers and extra metadata
                     const cleanedBody = sanitizedBody
-                        .replace(/--.*Content-Type:.*charset=".*"\s*/gi, "") // Remove boundary markers
-                        .replace(/--\S+--/g, "") // Remove ending markers
+                        .replace(/--.*Content-Type:.*charset=".*"\s*/gi, "")
+                        .replace(/--\S+--/g, "")
                         .trim();
 
-                    console.log("New Email:");
-                    console.log("Subject:", subject);
-                    console.log("From:", sender);
-                    console.log("Body:", cleanedBody);
+                    // Determine label
+                    const label = determineLabel(subject, sender, cleanedBody);
 
                     // Save email to MongoDB
                     try {
@@ -78,10 +83,12 @@ async function syncEmails() {
                             date: parsed.date || new Date(),
                             folder: "INBOX", // Hardcoded folder for now
                             account: "Account 1", // Hardcoded account for now
+                            label: label,
                         });
 
                         await newEmail.save();
                         console.log("Email saved to MongoDB:", newEmail);
+
                         // Index email in Elasticsearch
                         await indexEmail(newEmail);
                     } catch (error) {
