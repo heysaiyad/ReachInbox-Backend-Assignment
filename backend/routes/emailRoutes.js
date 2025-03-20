@@ -23,7 +23,7 @@ router.get("/search", async (req, res) => {
 
 router.get("/", async (req, res) => {
     try {
-        const { label, query } = req.query;
+        const { label, query, page = 1, limit = 10 } = req.query;
         const filter = {};
 
         if (label) filter.label = label;
@@ -35,8 +35,12 @@ router.get("/", async (req, res) => {
             ];
         }
 
-        const emails = await Email.find(filter);
-        res.json(emails);
+        const emails = await Email.find(filter)
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit));
+        const totalEmails = await Email.countDocuments(filter);
+
+        res.json({ emails, totalEmails });
     } catch (error) {
         console.error("Error fetching emails:", error.message);
         res.status(500).json({ error: "Internal server error" });

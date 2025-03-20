@@ -6,15 +6,19 @@ const App = () => {
     const [emails, setEmails] = useState([]);
     const [loading, setLoading] = useState(true);
     const [label, setLabel] = useState("");
-    const [searchQuery, setSearchQuery] = useState(""); 
+    const [searchQuery, setSearchQuery] = useState("");
+    const [page, setPage] = useState(1); 
+    const [totalEmails, setTotalEmails] = useState(0); 
+    const emailsPerPage = 10; 
 
     useEffect(() => {
         const fetchEmails = async () => {
             try {
-                console.log("Fetching emails with label:", label, "and search query:", searchQuery);
-                const response = await api.get("/emails", { params: { label, query: searchQuery } });
-                console.log("API Response:", response.data);
-                setEmails(response.data);
+                const response = await api.get("/emails", {
+                    params: { label, query: searchQuery, page, limit: emailsPerPage },
+                });
+                setEmails(response.data.emails);
+                setTotalEmails(response.data.totalEmails);
             } catch (error) {
                 console.error("Error fetching emails:", error);
             } finally {
@@ -23,7 +27,9 @@ const App = () => {
         };
 
         fetchEmails();
-    }, [label, searchQuery]); 
+    }, [label, searchQuery, page]); 
+
+    const totalPages = Math.ceil(totalEmails / emailsPerPage);
 
     return (
         <div>
@@ -37,10 +43,7 @@ const App = () => {
 
             {/* Label Filter Dropdown */}
             <select
-                onChange={(e) => {
-                    console.log("Selected label:", e.target.value);
-                    setLabel(e.target.value);
-                }}
+                onChange={(e) => setLabel(e.target.value)}
                 value={label}
             >
                 <option value="">All</option>
@@ -52,9 +55,33 @@ const App = () => {
             </select>
 
             {/* Email List */}
-            {loading ? <p>Loading emails...</p> : <EmailList emails={emails} setEmails={setEmails} />}
+            {loading ? (
+                <p>Loading emails...</p>
+            ) : (
+                <EmailList emails={emails} setEmails={setEmails} />
+            )}
+
+            {/* Pagination Controls */}
+            <div>
+                <button
+                    onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={page === 1}
+                >
+                    Previous
+                </button>
+                <span>
+                    Page {page} of {totalPages}
+                </span>
+                <button
+                    onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={page === totalPages}
+                >
+                    Next
+                </button>
+            </div>
         </div>
     );
 };
 
 export default App;
+
