@@ -3,6 +3,8 @@ const { simpleParser } = require("mailparser");
 const { convert } = require("html-to-text");
 const { Readable } = require("stream");
 const Email = require("../models/Email");
+const { indexEmail } = require("../services/elasticService");
+
 async function syncEmails() {
     const config = {
         imap: {
@@ -80,6 +82,8 @@ async function syncEmails() {
 
                         await newEmail.save();
                         console.log("Email saved to MongoDB:", newEmail);
+                        // Index email in Elasticsearch
+                        await indexEmail(newEmail);
                     } catch (error) {
                         console.error("Error saving email to MongoDB:", error);
                     }
