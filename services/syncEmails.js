@@ -74,6 +74,8 @@ async function syncEmails() {
                             sender: sender,
                             body: cleanedBody,
                             date: parsed.date || new Date(),
+                            folder: "INBOX", // Hardcoded folder for now
+                            account: "Account 1", // Hardcoded account for now
                         });
 
                         await newEmail.save();

@@ -5,6 +5,8 @@ const emailSchema = new mongoose.Schema({
     sender: { type: String, required: true },
     body: { type: String, required: true },
     date: { type: Date, default: Date.now },
+    folder: { type: String, required: true }, 
+    account: { type: String, required: true }, 
 });
 
 module.exports = mongoose.model("Email", emailSchema);
