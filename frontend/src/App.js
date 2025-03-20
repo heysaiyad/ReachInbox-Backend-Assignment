@@ -52,7 +52,7 @@ const App = () => {
             </select>
 
             {/* Email List */}
-            {loading ? <p>Loading emails...</p> : <EmailList emails={emails} />}
+            {loading ? <p>Loading emails...</p> : <EmailList emails={emails} setEmails={setEmails} />}
         </div>
     );
 };

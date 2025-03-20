@@ -43,4 +43,15 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.delete("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Email.findByIdAndDelete(id); 
+        res.json({ message: "Email deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting email:", error.message);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 module.exports = router;
