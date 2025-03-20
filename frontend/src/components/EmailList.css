@@ -1,0 +1,29 @@
+.email-list {
+    padding: 20px;
+    background-color: #f4f4f4;
+    min-height: 100vh;
+}
+
+.email-list h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.email-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.email-list li {
+    background-color: white;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.email-list li:hover {
+    background-color: #f0f0f0;
+}
