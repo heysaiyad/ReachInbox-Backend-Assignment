@@ -23,4 +23,50 @@ const indexEmail = async (email) => {
     }
 };
 
-module.exports = { indexEmail };
+// Function to search emails
+const searchEmails = async (query, folder, account) => {
+    try {
+        console.log("Search Parameters:", { query, folder, account });
+
+        const esQuery = {
+            index: "emails",
+            body: {
+                query: {
+                    bool: {
+                        must: [
+                            { multi_match: { query, fields: ["subject", "sender", "body"] } },
+                            { term: { "folder.keyword": folder } },
+                            { term: { "account.keyword": account } },
+                        ],
+                    },
+                },
+            },
+        };
+
+        console.log("Constructed Elasticsearch Query:", JSON.stringify(esQuery, null, 2));
+
+        // Perform the search
+        const response = await elasticClient.search(esQuery);
+
+        // Log the full response for debugging
+        console.log("Full Elasticsearch Response:", response);
+
+        // Access hits directly (for Elasticsearch client 8.x and above)
+        const hits = response.hits?.hits;
+
+        if (!hits || !Array.isArray(hits)) {
+            console.error("Unexpected Elasticsearch response structure:", response);
+            throw new Error("Invalid Elasticsearch response structure");
+        }
+
+        // Extract and return the _source property from hits
+        const results = hits.map((hit) => hit._source);
+
+        console.log("Search Results:", results);
+        return results;
+    } catch (error) {
+        console.error("Error searching emails:", error.message);
+        throw error;
+    }
+};
+module.exports = { indexEmail, searchEmails };
