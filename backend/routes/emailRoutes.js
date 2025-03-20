@@ -23,9 +23,19 @@ router.get("/search", async (req, res) => {
 
 router.get("/", async (req, res) => {
     try {
-        const { label } = req.query;
-        const filter = label ? { label } : {}; 
-        const emails = await Email.find(filter); 
+        const { label, query } = req.query;
+        const filter = {};
+
+        if (label) filter.label = label;
+        if (query) {
+            filter.$or = [
+                { subject: { $regex: query, $options: "i" } },
+                { sender: { $regex: query, $options: "i" } },
+                { body: { $regex: query, $options: "i" } },
+            ];
+        }
+
+        const emails = await Email.find(filter);
         res.json(emails);
     } catch (error) {
         console.error("Error fetching emails:", error.message);
