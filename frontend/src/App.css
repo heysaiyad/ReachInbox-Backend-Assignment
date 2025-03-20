@@ -74,3 +74,7 @@
   font-weight: bold;
   color: #333;
 }
+
+body {
+  overflow-y: scroll; /* Always show vertical scrollbar */
+}

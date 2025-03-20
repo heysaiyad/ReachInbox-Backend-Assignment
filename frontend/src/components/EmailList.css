@@ -1,11 +1,8 @@
-/* Email List Container */
 .email-list {
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 20px auto;
-    max-width: 800px;
+    max-height: 580px; 
+    overflow-y: auto; 
+    overflow-x: hidden;
+    padding-right: 10px; 
 }
 
 /* Email Item */
