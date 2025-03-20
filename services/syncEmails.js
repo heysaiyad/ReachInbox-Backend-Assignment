@@ -5,12 +5,25 @@ const { Readable } = require("stream");
 const Email = require("../models/Email");
 const { indexEmail } = require("../services/elasticService");
 
-// Function to determine the label
-const determineLabel = (subject, sender, body) => {
-    if (subject.toLowerCase().includes("testing")) return "Test Emails";
-    if (sender.toLowerCase().includes("mdsaiyad")) return "Personal";
-    // Add more rules as needed
-    return "Uncategorized";
+// Categories for email labeling
+const categories = [
+    { label: "Interested", keywords: ["interested", "yes", "keen"] },
+    { label: "Meeting Booked", keywords: ["meeting", "appointment", "calendar"] },
+    { label: "Not Interested", keywords: ["not interested", "decline", "no"] },
+    { label: "Spam", keywords: ["unsubscribe", "offer", "free"] },
+    { label: "Out of Office", keywords: ["out of office", "leave", "not available"] },
+];
+
+// Function to categorize emails
+const categorizeEmail = (emailBody) => {
+    for (const category of categories) {
+        for (const keyword of category.keywords) {
+            if (emailBody.toLowerCase().includes(keyword.toLowerCase())) {
+                return category.label;
+            }
+        }
+    }
+    return "Uncategorized"; // Default label if no match
 };
 
 async function syncEmails() {
@@ -36,8 +49,8 @@ async function syncEmails() {
             console.log("New mail received!");
 
             const results = await connection.search(["UNSEEN"], {
-                bodies: ["HEADER", "TEXT", ""], // Fetch headers and body
-                markSeen: true, // Mark emails as read
+                bodies: ["HEADER", "TEXT", ""],
+                markSeen: true,
             });
 
             results.forEach(async (email) => {
@@ -71,8 +84,8 @@ async function syncEmails() {
                         .replace(/--\S+--/g, "")
                         .trim();
 
-                    // Determine label
-                    const label = determineLabel(subject, sender, cleanedBody);
+                    // Categorize the email
+                    const label = categorizeEmail(cleanedBody);
 
                     // Save email to MongoDB
                     try {
@@ -81,9 +94,9 @@ async function syncEmails() {
                             sender: sender,
                             body: cleanedBody,
                             date: parsed.date || new Date(),
-                            folder: "INBOX", // Hardcoded folder for now
-                            account: "Account 1", // Hardcoded account for now
-                            label: label,
+                            folder: "INBOX",
+                            account: "Account 1",
+                            label: label, // Categorized label
                         });
 
                         await newEmail.save();
