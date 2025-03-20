@@ -23,7 +23,9 @@ router.get("/search", async (req, res) => {
 
 router.get("/", async (req, res) => {
     try {
-        const emails = await Email.find(); 
+        const { label } = req.query;
+        const filter = label ? { label } : {}; 
+        const emails = await Email.find(filter); 
         res.json(emails);
     } catch (error) {
         console.error("Error fetching emails:", error.message);
