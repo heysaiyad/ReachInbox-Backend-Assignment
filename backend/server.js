@@ -1,14 +1,16 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors"); 
 const syncEmails = require("./services/syncEmails");
-const emailRoutes = require("./routes/emailRoutes"); // Import routes
+const emailRoutes = require("./routes/emailRoutes"); 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
+app.use(cors()); 
 
 // Check environment variables
 if (!process.env.MONGO_URI) {
